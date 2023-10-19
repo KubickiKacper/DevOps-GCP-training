@@ -1,0 +1,47 @@
+version: '3.9'
+
+networks:
+  django_net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: django_db
+      MYSQL_USER_FILE: /run/secrets/db_user
+      MYSQL_PASSWORD_FILE: /run/secrets/db_pass
+    secrets:
+      - db_root_password
+      - db_pass
+      - db_user
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - django_net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  django:
+    build: ./
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - 80:8000
+    networks:
+      - django_net
+
+secrets:
+    db_pass:
+      file: ./secrets/db_pass
+    db_root_password:
+      file: ./secrets/db_root_password
+    db_user:
+      file: ./secrets/db_user
