@@ -27,7 +27,7 @@ SECRET_KEY = os.environ["django_secret_key"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [os.environ["HOST_IP"]]
+ALLOWED_HOSTS = ['*'] # '*' for sandbox only
 
 
 # Application definition
